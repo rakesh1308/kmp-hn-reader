@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.rakesh1308.hnreader.presentation.StoryItem
 import com.rakesh1308.hnreader.presentation.StoryListPresenter
+import com.rakesh1308.hnreader.ui.SummaryCard
 
 /**
  * Pure drawing: every decision (filtering, formatting, error text) already happened in the
@@ -90,10 +91,11 @@ fun StoryListScreen(presenter: StoryListPresenter, platform: String) {
                     HorizontalDivider()
                 }
             }
-            Text(
-                "Shared Kotlin logic running on $platform",
-                style = MaterialTheme.typography.labelSmall,
-                modifier = Modifier.padding(12.dp),
+            // The one SHARED composable (written in commonMain, also drawn on iOS).
+            SummaryCard(
+                shown = state.items.size,
+                saved = state.items.count { it.isBookmarked },
+                platform = platform,
             )
         }
     }

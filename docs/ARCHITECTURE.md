@@ -77,7 +77,20 @@ iosApp/Sources/
   HnReaderApp.swift          @main, builds the AppContainer         (≈ Application class)
   StoryListViewModel.swift   ObservableObject around the presenter  (≈ androidx ViewModel)
   ContentView.swift          SwiftUI screen, draws StoryListState   (≈ Compose screen)
+                             also hosts the shared SummaryCard through a UIViewControllerRepresentable
 ```
+
+## The one shared UI piece
+
+```text
+shared/commonMain/ui/SummaryCard.kt            @Composable, written once
+shared/iosMain/ui/SummaryCardController.kt     wraps it in a UIViewController for Swift
+androidApp StoryListScreen.kt                  calls SummaryCard(...) like any composable
+iosApp ContentView.swift                       SharedSummaryCard: UIViewControllerRepresentable
+```
+
+It takes plain values (`shown`, `saved`, `platform`) and has no logic; its text comes from `summaryLine()`,
+which is unit-tested. Everything else on screen is still drawn natively by each platform.
 
 The Swift side contains no business logic. If a rule changes (how search matches, how errors read),
 you change Kotlin once and both apps change.

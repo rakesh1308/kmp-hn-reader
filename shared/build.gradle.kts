@@ -4,6 +4,8 @@ plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.android.library)
+    alias(libs.plugins.kotlin.compose)            // Compose compiler (same version as Kotlin)
+    alias(libs.plugins.compose.multiplatform)     // Compose Multiplatform: runtime + UI for every target
 }
 
 kotlin {
@@ -28,6 +30,12 @@ kotlin {
             implementation(libs.ktor.client.core)
             implementation(libs.ktor.client.content.negotiation)
             implementation(libs.ktor.serialization.kotlinx.json)
+
+            // Shared UI (Compose Multiplatform). These resolve to Google's artifacts on Android
+            // and to JetBrains' Skia-based ones on iOS/JVM.
+            implementation(libs.compose.runtime)
+            implementation(libs.compose.foundation)
+            implementation(libs.compose.material3)
         }
         commonTest.dependencies {
             implementation(kotlin("test"))
