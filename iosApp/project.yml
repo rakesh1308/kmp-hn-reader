@@ -1,0 +1,45 @@
+# XcodeGen spec. On a Mac:   brew install xcodegen && cd iosApp && xcodegen generate
+# It writes iosApp.xcodeproj (git-ignored). We keep this small readable text file in git instead of a
+# hand-edited project.pbxproj, which is fragile and merge-conflict-prone.
+#
+# The two things that make it a KMP iOS app:
+#   1. a Run Script phase that asks Gradle to build the Kotlin framework BEFORE Swift compiles
+#   2. a framework search path so Swift can `import Shared`
+name: iosApp
+
+options:
+  deploymentTarget:
+    iOS: "16.0"
+
+targets:
+  iosApp:
+    type: application
+    platform: iOS
+    sources:
+      - path: Sources
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.rakesh1308.hnreader
+        SWIFT_VERSION: "5.0"
+        GENERATE_INFOPLIST_FILE: YES              # Info.plist is generated from INFOPLIST_KEY_* settings
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        INFOPLIST_KEY_CFBundleDisplayName: "HN Reader"
+        ENABLE_USER_SCRIPT_SANDBOXING: NO         # Gradle must be allowed to read/write outside the sandbox
+        FRAMEWORK_SEARCH_PATHS:
+          - "$(inherited)"
+          - "$(SRCROOT)/../shared/build/xcode-frameworks/$(CONFIGURATION)/$(SDK_NAME)"
+        OTHER_LDFLAGS:
+          - "$(inherited)"
+          - "-framework"
+          - "Shared"
+        CODE_SIGN_STYLE: Automatic
+    preBuildScripts:                               # runs BEFORE "Compile Sources"
+      - name: Build Kotlin framework (Gradle)
+        basedOnDependencyAnalysis: false           # always run; Gradle's own up-to-date checks keep it cheap
+        script: |
+          if [ "YES" = "$OVERRIDE_KOTLIN_BUILD_IDE_SUPPORTED" ]; then
+            echo "Skipping Gradle build task invocation"
+            exit 0
+          fi
+          cd "$SRCROOT/.."
+          ./gradlew :shared:embedAndSignAppleFrameworkForXcode

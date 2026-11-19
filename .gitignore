@@ -1,0 +1,19 @@
+# Gradle / build output
+.gradle/
+build/
+local.properties
+*.iml
+.idea/
+.kotlin/
+
+# Wrapper JAR is generated with `gradle wrapper` (see README)
+gradle/wrapper/gradle-wrapper.jar
+gradlew
+gradlew.bat
+
+# Xcode: the project is GENERATED from iosApp/project.yml by XcodeGen
+iosApp/iosApp.xcodeproj/
+iosApp/build/
+xcuserdata/
+DerivedData/
+.DS_Store

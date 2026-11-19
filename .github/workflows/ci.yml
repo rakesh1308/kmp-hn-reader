@@ -1,0 +1,47 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  # Shared logic tests (JVM + Android unit tests) and the Android app. Cheap Linux machine.
+  shared-and-android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: 8.14.3
+      - run: gradle :shared:jvmTest :shared:testDebugUnitTest :androidApp:assembleDebug --console=plain
+
+  # The same shared tests on the iOS simulator, plus a full Xcode build of the SwiftUI app.
+  # This is the only place the iOS half is verified, because it needs macOS + Xcode.
+  ios:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: 8.14.3
+      - name: Generate ./gradlew (Xcode's Run Script phase calls it)
+        run: gradle wrapper --gradle-version 8.14.3
+      - name: Shared tests on the iOS simulator
+        run: gradle :shared:iosSimulatorArm64Test --console=plain
+      - name: Generate the Xcode project from iosApp/project.yml
+        run: brew install xcodegen && cd iosApp && xcodegen generate
+      - name: Build the iOS app (unsigned, simulator)
+        run: >
+          xcodebuild -project iosApp/iosApp.xcodeproj -scheme iosApp
+          -configuration Debug -sdk iphonesimulator
+          -destination 'generic/platform=iOS Simulator'
+          CODE_SIGNING_ALLOWED=NO build
