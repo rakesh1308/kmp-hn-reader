@@ -17,13 +17,19 @@ targets:
     platform: iOS
     sources:
       - path: Sources
+    # XcodeGen writes iosApp/Info.plist from this block (git-ignored, regenerated every time).
+    info:
+      path: Info.plist
+      properties:
+        CFBundleDisplayName: "HN Reader"
+        UILaunchScreen: {}
+        # Compose Multiplatform needs this on 120 Hz iPhones; it is not a key that Xcode's
+        # generated-Info.plist (INFOPLIST_KEY_*) mechanism supports, hence a real plist.
+        CADisableMinimumFrameDurationOnPhone: true
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.rakesh1308.hnreader
         SWIFT_VERSION: "5.0"
-        GENERATE_INFOPLIST_FILE: YES              # Info.plist is generated from INFOPLIST_KEY_* settings
-        INFOPLIST_KEY_UILaunchScreen_Generation: YES
-        INFOPLIST_KEY_CFBundleDisplayName: "HN Reader"
         ENABLE_USER_SCRIPT_SANDBOXING: NO         # Gradle must be allowed to read/write outside the sandbox
         FRAMEWORK_SEARCH_PATHS:
           - "$(inherited)"

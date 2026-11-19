@@ -49,9 +49,13 @@ struct ContentView: View {
                 }
                 .listStyle(.plain)
 
-                Text("Shared Kotlin logic running on \(platform)")
-                    .font(.caption2)
-                    .foregroundColor(.secondary)
+                // The one SHARED Compose card (same Kotlin code Android draws), hosted inside SwiftUI.
+                SharedSummaryCard(
+                    shown: Int32(viewModel.state.items.count),
+                    saved: Int32(viewModel.state.items.filter { $0.isBookmarked }.count),
+                    platform: platform
+                )
+                .frame(height: 64)
             }
             .navigationTitle("HN Reader")
             .toolbar {
@@ -81,5 +85,31 @@ private struct StoryRow: View {
             }
             .buttonStyle(.borderless)
         }
+    }
+}
+
+/// Bridge: SwiftUI cannot draw Compose directly, so we host Compose's UIViewController.
+/// UIViewControllerRepresentable is the standard "put a UIKit screen inside SwiftUI" adapter.
+private struct SharedSummaryCard: UIViewControllerRepresentable {
+    let shown: Int32      // Kotlin Int -> Swift Int32
+    let saved: Int32
+    let platform: String
+
+    /// The coordinator keeps the Kotlin controller alive across SwiftUI redraws.
+    final class Coordinator {
+        let host: SummaryCardController
+        init(platform: String) { host = SummaryCardController(platform: platform) }
+    }
+
+    func makeCoordinator() -> Coordinator { Coordinator(platform: platform) }
+
+    func makeUIViewController(context: Context) -> UIViewController {
+        context.coordinator.host.update(shown: shown, saved: saved)
+        return context.coordinator.host.viewController
+    }
+
+    /// SwiftUI calls this whenever shown/saved change; Compose then recomposes by itself.
+    func updateUIViewController(_ uiViewController: UIViewController, context: Context) {
+        context.coordinator.host.update(shown: shown, saved: saved)
     }
 }

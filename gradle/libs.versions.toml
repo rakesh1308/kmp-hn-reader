@@ -5,6 +5,8 @@ coroutines = "1.11.0"
 serialization = "1.13.0"
 ktor = "3.5.2"
 composeBom = "2025.12.01"
+composeMultiplatform = "1.11.1"   # 1.12.x needs AGP 9.1+ and compileSdk 37; 1.11.1 fits AGP 8.13 + SDK 36
+composeMaterial3 = "1.9.0"   # JetBrains versions material3 on its own line; 1.9.0 is what plugin 1.11.x maps to
 activityCompose = "1.12.4"
 lifecycle = "2.10.0"
 
@@ -28,6 +30,10 @@ androidx-compose-ui = { module = "androidx.compose.ui:ui" }
 androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycle" }
 androidx-lifecycle-runtime-compose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "lifecycle" }
 
+compose-runtime = { module = "org.jetbrains.compose.runtime:runtime", version.ref = "composeMultiplatform" }
+compose-foundation = { module = "org.jetbrains.compose.foundation:foundation", version.ref = "composeMultiplatform" }
+compose-material3 = { module = "org.jetbrains.compose.material3:material3", version.ref = "composeMaterial3" }
+
 [plugins]
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
@@ -35,3 +41,4 @@ kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 android-application = { id = "com.android.application", version.ref = "agp" }
 android-library = { id = "com.android.library", version.ref = "agp" }
+compose-multiplatform = { id = "org.jetbrains.compose", version.ref = "composeMultiplatform" }
